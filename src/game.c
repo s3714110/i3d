@@ -724,8 +724,8 @@ void update_wave_state(struct asteroid* ast, struct ship* ship, float dt)
 			ast[i].pos.y = ast[i].launch_point.y + (arena_start_y + arena_height / 2);
 
 			struct vec2d ast_minus_ship;
-			ast_minus_ship.x = (ast[i].pos.x - ship->pos.x);
-			ast_minus_ship.y = (ast[i].pos.y - ship->pos.y);
+			ast_minus_ship.x = (ship->pos.x - ast[i].pos.x);
+			ast_minus_ship.y = (ship->pos.y - ast[i].pos.y);
 			float ast_minus_ship_mag = sqrtf(powf(ast_minus_ship.x, 2) + powf(ast_minus_ship.y, 2));
 
 			ast[i].dir.x = ast_minus_ship.x / ast_minus_ship_mag;
@@ -748,8 +748,8 @@ void update_asteroid_state(struct asteroid* ast, float dt)
 	{
 		if (ast[i].alive)
 		{
-			ast[i].pos.x -= ast[i].velocity * dt * ast[i].dir.x;
-			ast[i].pos.y -= ast[i].velocity * dt * ast[i].dir.y;
+			ast[i].pos.x += ast[i].velocity * dt * ast[i].dir.x;
+			ast[i].pos.y += ast[i].velocity * dt * ast[i].dir.y;
 			ast[i].rc = ast[i].rc + (ast[i].rotate_dir) * (ast[i].rotate_speed * dt);
 		}
 	}
@@ -1064,6 +1064,70 @@ void check_asteroids_collision(struct asteroid* ast)
 						float distance_between_centers = sqrtf(powf((ast[i].pos.x - ast[j].pos.x), 2) + powf((ast[i].pos.y - ast[j].pos.y), 2));
 						if (sum_radius >= distance_between_centers)
 						{
+
+							/*struct vec2d normal;
+							normal.x = (ast[j].pos.x - ast[i].pos.x);
+							normal.y = (ast[j].pos.y - ast[i].pos.y);
+							float normal_mag = sqrtf(powf(normal.x, 2) + powf(normal.y, 2));
+
+							struct vec2d normal_unit;
+							normal_unit.x = normal.x / normal_mag;
+							normal_unit.y = normal.y / normal_mag;
+
+							struct vec2d tangent_unit;
+							tangent_unit.x = (-1) * normal_unit.y;
+							tangent_unit.y = normal_unit.x;
+
+							float v1n;
+							v1n = (normal_unit.x * ast[i].dir.x) + (normal_unit.y * ast[i].dir.y);
+
+							float v1t;
+							v1t = (tangent_unit.x * ast[i].dir.x) + (tangent_unit.y * ast[i].dir.y);
+
+							float v2n;
+							v2n = (normal_unit.x * ast[j].dir.x) + (normal_unit.y * ast[j].dir.y);
+
+							float v2t;
+							v2t = (tangent_unit.x * ast[j].dir.x) + (tangent_unit.y * ast[j].dir.y);
+
+							float v1n_after;
+							v1n_after = v2n;
+
+							float v1t_after;
+							v1t_after = v1t;
+
+							float v2n_after;
+							v2n_after = v1n;
+
+							float v2t_after;
+							v2t_after = v2t;
+
+							struct vec2d v1n_after_unit;
+							struct vec2d v1t_after_unit;
+							struct vec2d v2n_after_unit;
+							struct vec2d v2t_after_unit;
+
+							v1n_after_unit.x = v1n_after * normal_unit.x;
+							v1n_after_unit.y = v1n_after * normal_unit.y;
+
+							v1t_after_unit.x = v1t_after * tangent_unit.x;
+							v1t_after_unit.y = v1t_after * tangent_unit.y;
+
+							v2n_after_unit.x = v2n_after * normal_unit.x;
+							v2n_after_unit.y = v2n_after * normal_unit.y;
+
+							v2t_after_unit.x = v2t_after * tangent_unit.x;
+							v2t_after_unit.y = v2t_after * tangent_unit.y;
+
+							
+							ast[i].dir.x = v1n_after_unit.x + v1t_after_unit.x;
+							ast[i].dir.y = v1n_after_unit.y + v1t_after_unit.y;
+
+							ast[j].dir.x = v2n_after_unit.x + v2t_after_unit.x;
+							ast[j].dir.y = v2n_after_unit.y + v2t_after_unit.y;*/
+
+						
+							
 							struct vec2d tangent;
 							tangent.y = -(ast[i].pos.x - ast[j].pos.x);
 							tangent.x = (ast[i].pos.y - ast[j].pos.y);
@@ -1073,16 +1137,9 @@ void check_asteroids_collision(struct asteroid* ast)
 							tangent_unit.x = tangent.x / tangent_mag;
 							tangent_unit.y = tangent.y / tangent_mag;
 
-
-							float angle_circle1 = acosf(ast[i].dir.x * tangent_unit.x + ast[i].dir.y * tangent_unit.y);
-							float angle_circle2 = M_PI - acosf(ast[j].dir.x * tangent_unit.x + ast[j].dir.y * tangent_unit.y);
+							float angle_circle1 = M_PI - acosf(ast[i].dir.x * tangent_unit.x + ast[i].dir.y * tangent_unit.y);
+							float angle_circle2 = acosf(ast[j].dir.x * tangent_unit.x + ast[j].dir.y * tangent_unit.y);
 							
-							//ast[i].dir.x = 2 * (tangent_unit.x * ast[i].dir.x) * tangent_unit.x - ast[i].dir.x;
-							//ast[i].dir.y = 2 * (tangent_unit.y * ast[i].dir.y) * tangent_unit.y - ast[i].dir.y;
-
-							//ast[j].dir.x = 2 * (tangent_unit.x * ast[j].dir.x) * tangent_unit.x - ast[j].dir.x;
-							//ast[j].dir.y = 2 * (tangent_unit.y * ast[j].dir.y) * tangent_unit.y - ast[j].dir.y;
-
 							ast[i].dir.x = cosf(angle_circle1);
 							ast[i].dir.y = sinf(angle_circle1);
 
@@ -1153,12 +1210,12 @@ void check_asteroid_split(struct asteroid* ast, float dt)
 			ast[i + 1].pos.x = original_pos.x - new_radius * arena_scale - perpendicular_vector.x * ast[i + 1].velocity * dt * arena_scale;
 			ast[i + 1].pos.y = original_pos.y + new_radius * arena_scale + perpendicular_vector.y * ast[i + 1].velocity * dt * arena_scale;
 
-			ast[i].dir.x = cos(0.25 * M_PI) * original_dir.x - sin(0.25 * M_PI) * original_dir.y;
-			ast[i].dir.y = sin(0.25 * M_PI) * original_dir.x + cos(0.25 * M_PI) * original_dir.y;
+			ast[i].dir.x = (cos(0.25 * M_PI) * original_dir.x - sin(0.25 * M_PI) * original_dir.y);
+			ast[i].dir.y = (sin(0.25 * M_PI) * original_dir.x + cos(0.25 * M_PI) * original_dir.y);
 
 
-			ast[i + 1].dir.x = cos(-0.25 * M_PI) * original_dir.x - sin(-0.25 * M_PI) * original_dir.y;
-			ast[i + 1].dir.y = sin(-0.25 * M_PI) * original_dir.x + cos(-0.25 * M_PI) * original_dir.y;
+			ast[i + 1].dir.x = (cos(-0.25 * M_PI) * original_dir.x - sin(-0.25 * M_PI) * original_dir.y);
+			ast[i + 1].dir.y = (sin(-0.25 * M_PI) * original_dir.x + cos(-0.25 * M_PI) * original_dir.y);
 
 
 		}
@@ -1263,7 +1320,7 @@ void init_app(int* argcp, char** argv)
 	glutInit(argcp, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Assignment 1");
-	glutFullScreen();
+	//glutFullScreen();
 	glutReshapeFunc(on_reshape);
 
 	glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF);
